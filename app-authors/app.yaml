@@ -1,0 +1,37 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: app-authors
+  labels:
+    app: app-authors
+spec:
+  type: ClusterIP
+  selector:
+    app: app-authors
+  ports:
+    - name: tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: app-authors
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-authors
+  template:
+    metadata:
+      labels:
+        app: app-authors
+        version: v1
+    spec:
+      containers:
+      - name: app-authors
+        image: app-authors
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
