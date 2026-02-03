@@ -14,6 +14,7 @@
     <module>app-authors</module>
     <module>app-customers</module>
     <module>app-recommend</module>
+    <module>app-books</module>
   </modules>
 
 

@@ -8,17 +8,25 @@
 
 - [Micronaut Maven Plugin documentation](https://micronaut-projects.github.io/micronaut-maven-plugin/latest/)
 ## Feature maven-enforcer-plugin documentation
-
+##
 - [https://maven.apache.org/enforcer/maven-enforcer-plugin/](https://maven.apache.org/enforcer/maven-enforcer-plugin/)
 
+## documentation project 
+# COMANDOS PARA CONSTRUIR Y EJECUTAR
 
-## Feature micronaut-aot documentation
+# 1. Compilar el proyecto
+mvn clean package -DskipTests
 
-- [Micronaut AOT documentation](https://micronaut-projects.github.io/micronaut-aot/latest/guide/)
+# 2. Construir la imagen Docker
+docker build -t augustouce/app-authors:latest .
 
+# 3. Levantar todo con docker-compose
+docker-compose up -d
 
-## Feature serialization-jackson documentation
+# 4. Ver logs del servicio authors
+docker-compose logs -f authors
 
-- [Micronaut Serialization Jackson Core documentation](https://micronaut-projects.github.io/micronaut-serialization/latest/guide/)
-
-
+# 5. Verificar URLs
+# Consul UI: http://localhost:8500/ui/
+# Traefik Dashboard: http://localhost:8888/dashboard/
+# Tu servicio: http://localhost:80/app-authors/authors

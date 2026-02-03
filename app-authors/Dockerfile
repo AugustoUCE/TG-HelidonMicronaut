@@ -1,39 +1,18 @@
 
-# 1st stage, build the app
-FROM container-registry.oracle.com/java/jdk-no-fee-term:21 AS build
+# Imagen ligera con JRE
+FROM eclipse-temurin:21.0.9_10-jre-alpine-3.23
+WORKDIR /app
 
-# Install maven
-WORKDIR /usr/share
-RUN set -x && \
-    curl -O https://archive.apache.org/dist/maven/maven-3/3.8.4/binaries/apache-maven-3.8.4-bin.tar.gz && \
-    tar -xvf apache-maven-*-bin.tar.gz  && \
-    rm apache-maven-*-bin.tar.gz && \
-    mv apache-maven-* maven && \
-    ln -s /usr/share/maven/bin/mvn /bin/
+COPY target/app-authors.jar .
 
-WORKDIR /helidon
-
-# Create a first layer to cache the "Maven World" in the local repository.
-# Incremental docker builds will always resume after that, unless you update
-# the pom
-ADD pom.xml .
-RUN mvn package -Dmaven.test.skip -Declipselink.weave.skip -Declipselink.weave.skip -DskipOpenApiGenerate
-
-# Do the Maven build!
-# Incremental docker builds will resume here when you change sources
-ADD src src
-RUN mvn package -DskipTests
-
-RUN echo "done!"
-
-# 2nd stage, build the runtime image
-FROM container-registry.oracle.com/java/jdk-no-fee-term:21
-WORKDIR /helidon
-
-# Copy the binary built in the 1st stage
-COPY --from=build /helidon/target/app-authors.jar ./
-COPY --from=build /helidon/target/libs ./libs
-
-CMD ["java", "-jar", "app-authors.jar"]
 
 EXPOSE 8080
+ENV SERVER_PORT=8080
+
+# Healthcheck
+HEALTHCHECK --interval=10s --timeout=3s --start-period=30s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health/live || exit 1
+
+# Comando para ejecutar la app
+CMD ["java", "-jar", "app-authors.jar"]
+
