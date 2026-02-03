@@ -13,6 +13,7 @@
   <modules>
     <module>app-authors</module>
     <module>app-customers</module>
+    <module>app-recommend</module>
   </modules>
 
 

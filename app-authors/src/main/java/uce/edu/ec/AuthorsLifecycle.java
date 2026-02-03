@@ -65,12 +65,15 @@ public class AuthorsLifecycle {
                     .setInterval("10s")
                     .setDeregisterAfter("30s");
 
-            List<String> tags = List.of(
-                    "traefik.enable=true",
-                    "traefik.http.routers.authors.rule=PathPrefix(`/app-authors`)",
-                    "traefik.http.middlewares.authors-stripprefix.stripPrefix.prefixes=/app-authors",
-                    "traefik.http.routers.authors.middlewares=authors-stripprefix"
-            );
+            List<String> tags = new java.util.ArrayList<>();
+            tags.add("traefik.enable=true");
+            tags.add("traefik.http.routers.authors.rule=PathPrefix(`/app-authors`)");
+            tags.add("traefik.http.middlewares.authors-stripprefix.stripPrefix.prefixes=/app-authors");
+            tags.add("traefik.http.routers.authors.middlewares=authors-stripprefix");
+
+            System.out.println("🏷️  Tags a registrar:");
+            tags.forEach(tag -> System.out.println("   - " + tag));
+
 
             ServiceOptions serviceOptions = new ServiceOptions()
                     .setName("app-authors")
