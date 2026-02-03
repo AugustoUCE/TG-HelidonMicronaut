@@ -1,15 +1,106 @@
-Thumbs.db
-.DS_Store
-.gradle
+# ================================
+# GRADLE / MAVEN / BUILD
+# ================================
+.gradle/
 build/
 target/
 out/
-.micronaut/
-.idea
+bin/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.log
+*.tmp
+
+# Maven Wrapper
+.mvn/wrapper/maven-wrapper.jar
+
+# ================================
+# IDEs
+# ================================
+# IntelliJ
+.idea/
 *.iml
-*.ipr
 *.iws
+*.ipr
+
+# Eclipse
 .project
-.settings
 .classpath
+.settings/
+
+# NetBeans
+nb-configuration.xml
+
+# Visual Studio Code
+.vscode/
 .factorypath
+
+# ================================
+# OS FILES
+# ================================
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Vim swap files
+*.swp
+*.swo
+
+# ================================
+# LOCAL ENVIRONMENT & SECRETS
+# ================================
+.env
+.env.local
+.env.*.local
+.certs/
+*.pem
+*.key
+*.crt
+
+# ================================
+# DOCKER / KUBERNETES
+# ================================
+docker-compose.override.yml
+*.dockerfile
+.kube/
+*.kubeconfig
+*.minikube/
+
+# ================================
+# MICROSERVICES / CONTAINERS
+# ================================
+traefik*
+consul*
+tmp/
+logs/
+*.pid
+
+# ================================
+# BINARY EXECUTABLES
+# ================================
+*.exe
+*.dll
+*.so
+*.dylib
+
+# ================================
+# PATCH FILES
+# ================================
+*.orig
+*.rej
+
+# ================================
+# MISC
+# ================================
+.idea_modules/
+.gradle/
+out/
+
+*.gguf
