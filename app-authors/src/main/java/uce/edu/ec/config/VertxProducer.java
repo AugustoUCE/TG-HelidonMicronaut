@@ -1,4 +1,4 @@
-package uce.edu.ec;
+package uce.edu.ec.config;
 
 import io.vertx.core.Vertx;
 import jakarta.enterprise.context.ApplicationScoped;
