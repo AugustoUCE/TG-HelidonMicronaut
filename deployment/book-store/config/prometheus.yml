@@ -1,0 +1,23 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+
+scrape_configs:
+  - job_name: "postgres"
+    static_configs:
+      - targets: ["postgres-exporter:9187"]
+
+  - job_name: "traefik"
+    static_configs:
+      - targets: ["traefik:8080"]
+
+  - job_name: "app-authors"
+    metrics_path: /metrics
+    static_configs:
+      - targets: [ "app-authors:8080" ]
+
+  - job_name: "app-books"
+    metrics_path: /metrics
+    static_configs:
+      - targets: [ "app-books:8030" ]
