@@ -1,32 +1,80 @@
-## Micronaut 4.10.7 Documentation
+# Monitoreo - Helidon MP 4.3.3
 
-- [User Guide](https://docs.micronaut.io/4.10.7/guide/index.html)
-- [API Reference](https://docs.micronaut.io/4.10.7/api/index.html)
-- [Configuration Reference](https://docs.micronaut.io/4.10.7/guide/configurationreference.html)
-- [Micronaut Guides](https://guides.micronaut.io/index.html)
----
+##  URLs de los servicios
+- App Authors: http://192.168.100.5/app-authors
+- App Books: http://192.168.100.5/app-books
+- Métricas (Prometheus scrape):
+    - Authors: http://192.168.100.5/app-authors/metrics
+    - Books: http://192.168.100.5/app-books/metrics
 
-- [Micronaut Maven Plugin documentation](https://micronaut-projects.github.io/micronaut-maven-plugin/latest/)
-## Feature maven-enforcer-plugin documentation
-##
-- [https://maven.apache.org/enforcer/maven-enforcer-plugin/](https://maven.apache.org/enforcer/maven-enforcer-plugin/)
+##  Grafana
+- ID Postgres (Datasource): 9628
+- Dashboard: Helidon MP 4.x - MicroProfile Metrics
+- UID: helidon-mp-basic
 
-## documentation project 
-# COMANDOS PARA CONSTRUIR Y EJECUTAR
-
-# 1. Compilar el proyecto
-mvn clean package -DskipTests
-
-# 2. Construir la imagen Docker
-docker build -t augustouce/app-authors:latest .
-
-# 3. Levantar todo con docker-compose
-docker-compose up -d
-
-# 4. Ver logs del servicio authors
-docker-compose logs -f authors
-
-# 5. Verificar URLs
-# Consul UI: http://localhost:8500/ui/
-# Traefik Dashboard: http://localhost:8888/dashboard/
-# Tu servicio: http://localhost:80/app-authors/authors
+##  Dashboard (JSON)
+```json
+{
+  "uid": "helidon-mp-basic",
+  "title": "Helidon MP 4.x - MicroProfile Metrics",
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "5s",
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Requests por microservicio",
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "sum by (job) (requests_count_total)",
+          "legendFormat": "{{job}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Heap usado (bytes)",
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "memory_usedHeap_bytes",
+          "legendFormat": "{{job}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Threads activos",
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "thread_count",
+          "legendFormat": "{{job}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "GC total (colecciones)",
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "sum by (name) (gc_total)",
+          "legendFormat": "{{name}}",
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "time": { "from": "now-15m", "to": "now" },
+  "templating": { "list": [] }
+}
