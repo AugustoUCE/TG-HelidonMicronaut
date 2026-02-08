@@ -1,138 +1,182 @@
 services:
-  dbserver:
+  # ==========================================
+  # POSTGRESQL - Base de datos compartida
+  # ==========================================
+  postgres:
     image: postgres:17.7-alpine3.23
+    container_name: postgres
+    hostname: postgres
+    restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: distribuida
+      POSTGRES_DB: postgres
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
-    ports:
-      - 54321:5432
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - microservices-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  postgres-exporter:
-    image: prometheuscommunity/postgres-exporter
-    environment:
-      DATA_SOURCE_NAME: "postgresql://postgres:postgres@dbserver:5432/distribuida?sslmode=disable"
-    ports:
-      - 9187:9187
-    depends_on:
-      - dbserver
-
+  # ==========================================
+  # CONSUL - Service Discovery
+  # ==========================================
   consul:
     image: consul:1.15.4
-    command:
-      - agent
-      - -dev
-      - -ui
-      - -bind
-      - 0.0.0.0
-      - -client
-      - 0.0.0.0
-    expose:
-      - 8500
+    container_name: consul
+    hostname: consul
+    restart: unless-stopped
+    command: >
+      agent 
+      -server 
+      -ui 
+      -bootstrap-expect=1 
+      -client=0.0.0.0
+      -bind=0.0.0.0
     ports:
-      - 8500:8500
+      - "8500:8500"
+      - "8600:8600/udp"
+    volumes:
+      - consul-data:/consul/data
+    networks:
+      - microservices-net
+    healthcheck:
+      test: ["CMD", "consul", "members"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
 
-  proxy:
+  # ==========================================
+  # TRAEFIK - API Gateway
+  # ==========================================
+  traefik:
     image: traefik:3.6.6
+    container_name: traefik
+    hostname: traefik
+    restart: unless-stopped
     command:
-      - --api.insecure=true
-      - --api.dashboard=true
-      - --providers.consulCatalog
-      - --providers.consulCatalog.refreshInterval=5s
-      - --providers.consulCatalog.exposedByDefault=false
-      - --providers.consulCatalog.endpoint.address=consul:8500
-      - --entryPoints.http.address=":80"
+      - "--api.insecure=true"
+      - "--api.dashboard=true"
+      - "--providers.consulcatalog=true"
+      - "--providers.consulcatalog.endpoint.address=consul:8500"
+      - "--providers.consulcatalog.prefix=traefik"
+      - "--providers.consulcatalog.exposedByDefault=false"
+      - "--providers.consulcatalog.refreshInterval=10s"
+      - "--entrypoints.web.address=:80"
+      - "--log.level=INFO"
+      - "--accesslog=true"
     ports:
-      - 8888:8080   # Dashboard de Traefik
-      - 8080:80     # Puerto principal del proxy
+      - "80:80"
+      - "8081:8080"
     depends_on:
-      - consul
-
-  authors:
-    image: augustouce/app-authors
-    environment:
-      # Datasource - apunta al contenedor dbserver
-      javax.sql.DataSource.jdbc/postgres.dataSource.url: jdbc:postgresql://dbserver:5432/distribuida
-      javax.sql.DataSource.jdbc/postgres.dataSource.user: postgres
-      javax.sql.DataSource.jdbc/postgres.dataSource.password: postgres
-      javax.sql.DataSource.jdbc/postgres.dataSourceClassName: org.postgresql.ds.PGSimpleDataSource
-      # Puerto del servicio
-      server.port: "8080"
-      # Consul - apunta al contenedor consul
-      consul.host: consul
-      consul.port: "8500"
-    expose:
-      - 8080
-    ports:
-      - 8081:8080
-    deploy:
-      replicas: 1
-    depends_on:
-      - dbserver
-      - consul
-
-  books:
-    image: augustouce/app-books
-    environment:
-      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://dbserver:5432/distribuida
-      QUARKUS_DATASOURCE_USERNAME: postgres
-      QUARKUS_DATASOURCE_PASSWORD: postgres
-      QUARKUS_HTTP_PORT: 8080
-      CONSUL_HOST: consul
-      CONSUL_PORT: 8500
-    expose:
-      - 8080
-    deploy:
-      replicas: 1
-    depends_on:
-      - dbserver
-
-  customers:
-    image: augustouce/app-customers
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://dbserver:5432/distribuida
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-      SERVER_PORT: 8080
-      SPRING_CLOUD_CONSUL_HOST: consul
-      SPRING_CLOUD_CONSUL_ENABLED: true
-      SPRING_CLOUD_CONSUL_PORT: 8500
-    expose:
-      - 8080
-    ports:
-      - 8082:8080
-    deploy:
-      replicas: 1
-    depends_on:
-      - dbserver
-      - authors
-      - consul
+      consul:
+        condition: service_healthy
+    networks:
+      - microservices-net
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.customers.rule=PathPrefix(`/app-customers`)"
-      - "traefik.http.routers.customers.entrypoints=http"
-      - "traefik.http.middlewares.customers-stripprefix.stripprefix.prefixes=/app-customers"
-      - "traefik.http.routers.customers.middlewares=customers-stripprefix"
 
-  Prometheus:
-    image: prom/prometheus:latest
-    volumes:
-      - ./config:/etc/prometheus
-    ports:
-      - 9090:9090
-    expose:
-      - 9090
+  # ==========================================
+  # APP-AUTHORS - Helidon MP 4.3.3
+  # ==========================================
+  app-authors:
+    image: augustouce/app-authors-tg:latest
+    container_name: app-authors
+    hostname: app-authors
+    restart: unless-stopped
+    environment:
+      SERVER_PORT: 8080
 
-  graphana:
-    image: grafana/grafana-oss:latest
+      CONSUL_HOST: consul
+      CONSUL_PORT: 8500
+      SERVICE_HOST: app-authors
+
+      DB_HOST: postgres
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+
+      FLYWAY_LOCATIONS: classpath:db/migration
+      FLYWAY_BASELINE_ON_MIGRATE: "true"
+
+      JAVA_OPTS: -Xms256m -Xmx512m
     ports:
-      - 3000:3000
-    expose:
-      - 3000
+      - "8080:8080"
     depends_on:
-      - Prometheus
+      postgres:
+        condition: service_healthy
+      consul:
+        condition: service_healthy
+    networks:
+      - microservices-net
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
+  # ==========================================
+  # APP-BOOKS - Helidon MP 4.3.3
+  # ==========================================
+  app-books:
+    image: augustouce/app-books-tg:latest
+    container_name: app-books
+    hostname: app-books
+    restart: unless-stopped
+    environment:
+      SERVER_PORT: 8030
+
+      CONSUL_HOST: consul
+      CONSUL_PORT: 8500
+      SERVICE_HOST: app-books
+
+      DB_HOST: postgres
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+
+      AUTHORS_API_URL: http://app-authors:8080
+
+      FLYWAY_LOCATIONS: classpath:db/migration
+      FLYWAY_BASELINE_ON_MIGRATE: "true"
+
+      JAVA_OPTS: -Xms256m -Xmx512m
+    ports:
+      - "8030:8030"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      consul:
+        condition: service_healthy
+      app-authors:
+        condition: service_healthy
+    networks:
+      - microservices-net
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8030/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+# ==========================================
+# NETWORKS
+# ==========================================
+networks:
+  microservices-net:
+    driver: bridge
+    name: microservices-network
+
+# ==========================================
+# VOLUMES
+# ==========================================
 volumes:
-  pgdata:
+  postgres-data:
+    name: postgres-data
+  consul-data:
+    name: consul-data

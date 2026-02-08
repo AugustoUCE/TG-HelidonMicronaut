@@ -2,7 +2,7 @@
 *.class
 
 # Maven
-target/
+
 .m2/
 
 # Package Files #
