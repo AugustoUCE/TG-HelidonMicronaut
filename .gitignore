@@ -18,6 +18,10 @@ bin/
 .mvn/wrapper
 .mvn/wrapper/maven-wrapper.jar
 
+# Maven Local Repository
+.m2/
+.m2/repository/
+
 # ================================
 # IDEs
 # ================================
@@ -98,10 +102,42 @@ logs/
 *.rej
 
 # ================================
+# VAADIN / FRONTEND
+# ================================
+node_modules/
+npm-debug.log
+npm-debug.log*
+pnpm-debug.log*
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+.pnpmfile.cjs
+frontend/generated/
+frontend/src-gen/
+.vite/
+dist/
+*.map
+
+# ================================
+# NODE / NPM
+# ================================
+.npmrc
+.yarnrc
+
+# ================================
 # MISC
 # ================================
 .idea_modules/
-.gradle/
 out/
-
 *.gguf
+heap_dump.hprof
+.DS_Store
+*.swp
+*~
+.vscode/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
