@@ -1,0 +1,34 @@
+micronaut:
+  application:
+    name: app-customers
+  server:
+    port: 8040
+    cors:
+      enabled: true
+
+datasources:
+  default:
+    url: jdbc:postgresql://localhost:5432/postgres
+    driverClassName: org.postgresql.Driver
+    username: postgres
+    password: postgres
+    dialect: POSTGRES
+    schema-generate: CREATE_DROP
+
+endpoints:
+  health:
+    enabled: true
+    sensitive: false
+  info:
+    enabled: true
+    sensitive: false
+
+logger:
+  levels:
+    uce.edu.ec: DEBUG
+    io.micronaut.data: DEBUG
+
+netty:
+  default:
+    allocator:
+      max-order: 3
