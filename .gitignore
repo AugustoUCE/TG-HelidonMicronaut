@@ -15,6 +15,7 @@ bin/
 *.tmp
 
 # Maven Wrapper
+.mvn/wrapper
 .mvn/wrapper/maven-wrapper.jar
 
 # ================================
