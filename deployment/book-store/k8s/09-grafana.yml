@@ -107,7 +107,6 @@ metadata:
   labels:
     app: grafana
 spec:
-  host: grafana.apps.openshift.example.com
   to:
     kind: Service
     name: grafana

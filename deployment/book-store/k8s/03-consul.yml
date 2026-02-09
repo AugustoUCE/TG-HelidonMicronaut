@@ -1,38 +1,7 @@
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: consul-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 5Gi
-  storageClassName: gp2
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: consul-config
-data:
-  consul.json: |
-    {
-      "datacenter": "dc1",
-      "data_dir": "/consul/data",
-      "client_addr": "0.0.0.0",
-      "ui": true,
-      "server": true,
-      "bootstrap_expect": 1,
-      "log_level": "INFO",
-      "disable_host_node_id": true
-    }
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: consul
-  labels:
-    app: consul
 spec:
   replicas: 1
   selector:
@@ -43,70 +12,27 @@ spec:
       labels:
         app: consul
     spec:
-      securityContext:
-        fsGroup: 1000
-        runAsUser: 100
-        runAsNonRoot: true
       containers:
         - name: consul
           image: consul:1.15.4
-          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              exec consul agent \
+                -dev \
+                -client=0.0.0.0 \
+                -bind=0.0.0.0 \
+                -ui
           ports:
             - containerPort: 8500
               name: http
-              protocol: TCP
-            - containerPort: 8600
-              name: dns
-              protocol: UDP
-            - containerPort: 8300
-              name: server
-              protocol: TCP
-          env:
-            - name: CONSUL_DISABLE_PERM_MGMT
-              value: "true"
-          command:
-            - "sh"
-            - "-c"
-            - |
-              chown -R consul:consul /consul/data 2>/dev/null || true
-              exec consul agent \
-                -config-file=/consul/config/consul.json \
-                -advertise=$(hostname -i)
           resources:
             requests:
-              memory: "256Mi"
-              cpu: "250m"
+              memory: "128Mi"
+              cpu: "100m"
             limits:
-              memory: "512Mi"
-              cpu: "500m"
-          volumeMounts:
-            - name: consul-data
-              mountPath: /consul/data
-            - name: consul-config
-              mountPath: /consul/config
-          livenessProbe:
-            httpGet:
-              path: /v1/status/leader
-              port: 8500
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            timeoutSeconds: 5
-            failureThreshold: 3
-          readinessProbe:
-            httpGet:
-              path: /v1/status/leader
-              port: 8500
-            initialDelaySeconds: 10
-            periodSeconds: 5
-            timeoutSeconds: 3
-            failureThreshold: 3
-      volumes:
-        - name: consul-data
-          persistentVolumeClaim:
-            claimName: consul-pvc
-        - name: consul-config
-          configMap:
-            name: consul-config
+              memory: "256Mi"
+              cpu: "300m"
 ---
 apiVersion: v1
 kind: Service
@@ -115,49 +41,29 @@ metadata:
   labels:
     app: consul
 spec:
-  type: ClusterIP
   ports:
-    - port: 8500
+    - name: http
+      port: 8500
       targetPort: 8500
-      protocol: TCP
-      name: http
-    - port: 8600
-      targetPort: 8600
-      protocol: UDP
-      name: dns
-    - port: 8300
-      targetPort: 8300
-      protocol: TCP
-      name: server
-  selector:
-    app: consul
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: consul-ui
-  labels:
-    app: consul
-spec:
-  type: ClusterIP
-  ports:
-    - port: 8500
-      targetPort: 8500
-      protocol: TCP
-      name: http
+  #    - name: dns
+  #      port: 8600
+  #      targetPort: 8600
+  #    - name: rpc
+  #      port: 8400
+  #      targetPort: 8400
   selector:
     app: consul
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: consul-ui
+  name: consul
   labels:
     app: consul
 spec:
   to:
     kind: Service
-    name: consul-ui
+    name: consul
     weight: 100
   port:
     targetPort: http

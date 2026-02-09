@@ -1,7 +1,4 @@
 services:
-  # ==========================================
-  # POSTGRESQL - Base de datos compartida
-  # ==========================================
   postgres:
     image: postgres:17.7-alpine3.23
     container_name: postgres
@@ -24,9 +21,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # ==========================================
-  # CONSUL - Service Discovery
-  # ==========================================
   consul:
     image: consul:1.15.4
     container_name: consul
@@ -52,9 +46,6 @@ services:
       timeout: 3s
       retries: 3
 
-  # ==========================================
-  # TRAEFIK - API Gateway
-  # ==========================================
   traefik:
     image: traefik:3.6.6
     container_name: traefik
@@ -82,9 +73,7 @@ services:
     labels:
       - "traefik.enable=true"
 
-  # ==========================================
-  # APP-AUTHORS - Helidon MP 4.3.3
-  # ==========================================
+
   app-authors:
     image: augustouce/app-authors-tg:latest
     container_name: app-authors
@@ -121,9 +110,6 @@ services:
       retries: 3
       start_period: 40s
 
-  # ==========================================
-  # APP-BOOKS - Helidon MP 4.3.3
-  # ==========================================
   app-books:
     image: augustouce/app-books-tg:latest
     container_name: app-books
@@ -164,17 +150,13 @@ services:
       retries: 3
       start_period: 40s
 
-# ==========================================
-# NETWORKS
-# ==========================================
+
 networks:
   microservices-net:
     driver: bridge
     name: microservices-network
 
-# ==========================================
-# VOLUMES
-# ==========================================
+
 volumes:
   postgres-data:
     name: postgres-data

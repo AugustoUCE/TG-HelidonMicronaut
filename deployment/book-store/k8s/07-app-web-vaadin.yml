@@ -89,7 +89,6 @@ metadata:
   labels:
     app: app-web-vaadin
 spec:
-  host: vaadin.apps.openshift.example.com
   to:
     kind: Service
     name: app-web-vaadin

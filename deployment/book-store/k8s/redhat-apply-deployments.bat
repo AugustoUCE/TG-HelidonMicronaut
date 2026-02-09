@@ -5,39 +5,39 @@ echo =========================================
 
 
 echo [1/9] Desplegando PostgreSQL (con PVC)...
-oc apply -f 01-postgres.yaml
+oc apply -f 01-postgres.yml
 
 
 echo [2/9] Desplegando PostgreSQL Exporter...
-oc apply -f 02-postgres-exporter.yaml
+oc apply -f 02-postgres-exporter.yml
 
 echo [3/9] Desplegando Consul (con PVC)...
-oc apply -f 03-consul.yaml
+oc apply -f 03-consul.yml
 
 echo Esperando a que Consul se inicie correctamente...
-timeout /t 5 /nobreak
+timeout /t 10 /nobreak
 
 echo [4/9] Desplegando Traefik...
-oc apply -f 04-traefik.yaml
+oc apply -f 04-traefik.yml
 timeout /t 5 /nobreak
 
 echo [5/9] Desplegando App Authors...
-oc apply -f 05-app-authors.yaml
-timeout /t 5 /nobreak
+oc apply -f 05-app-authors.yml
+timeout /t 10 /nobreak
 
 echo [6/9] Desplegando App Books...
-oc apply -f 06-app-books.yaml
-timeout /t 5 /nobreak
+oc apply -f 06-app-books.yml
+timeout /t 10 /nobreak
 
 echo [7/9] Desplegando App Web Vaadin...
-oc apply -f 07-app-web-vaadin.yaml
+oc apply -f 07-app-web-vaadin.yml
 timeout /t 5 /nobreak
 
 echo [8/9] Desplegando Prometheus...
-oc apply -f 08-prometheus.yaml
+oc apply -f 08-prometheus.yml
 
 echo [9/9] Desplegando Grafana...
-oc apply -f 09-grafana.yaml
+oc apply -f 09-grafana.yml
 
 echo.
 echo =========================================
