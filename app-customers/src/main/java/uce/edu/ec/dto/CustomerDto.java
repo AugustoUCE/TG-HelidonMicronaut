@@ -16,8 +16,9 @@ import java.util.List;
 @AllArgsConstructor
 
 public class CustomerDto {
-    private Integer id;
-    private String name;
+    private Long id;
+    private String first_name;
+    private String last_name;
     private String email;
-    private List<uce.edu.ec.dto.PurcharseOrderDto> purcharseOrders;
+    private List<PurcharseOrderDto> purcharseOrders;
 }

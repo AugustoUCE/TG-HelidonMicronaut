@@ -1,24 +1,31 @@
 package uce.edu.ec.db;
 
 import io.micronaut.core.annotation.Nullable;
-import io.micronaut.data.annotation.GeneratedValue;
-import io.micronaut.data.annotation.Id;
-import io.micronaut.data.annotation.MappedEntity;
-import io.micronaut.data.annotation.Relation;
+import io.micronaut.data.annotation.*;
 import io.micronaut.serde.annotation.Serdeable;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @MappedEntity(value = "customer")
 @Serdeable
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
+@AllArgsConstructor
+@NoArgsConstructor
 public class Customer {
 
     @Id
     @GeneratedValue(GeneratedValue.Type.IDENTITY)
-    private Integer id;
-
-    private String name;
+    @AutoPopulated
+    private Long id;
+    @MappedProperty("first_name")
+    private String first_name;
+    @MappedProperty("last_name")
+    private String last_Name;
 
     private String email;
 
@@ -26,45 +33,5 @@ public class Customer {
     @Nullable
     private List<PurcharseOrder> purcharseOrders = new ArrayList<>();
 
-    public Customer() {
-    }
 
-    public Customer(Integer id, String name, String email, List<PurcharseOrder> purcharseOrders) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.purcharseOrders = purcharseOrders;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public List<PurcharseOrder> getPurcharseOrders() {
-        return purcharseOrders;
-    }
-
-    public void setPurcharseOrders(List<PurcharseOrder> purcharseOrders) {
-        this.purcharseOrders = purcharseOrders;
-    }
 }

@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PurcharseOrderDto {
-    private Integer id;
+    private Long id;
     private LocalDate placedOn;
     private LocalDate deliveredOn;
     private BigDecimal total;
