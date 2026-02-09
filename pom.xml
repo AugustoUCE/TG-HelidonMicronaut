@@ -13,7 +13,7 @@
   <modules>
     <module>app-authors</module>
     <module>app-customers</module>
-<!--    <module>app-recommend</module>-->
+    <module>app-recommend</module>
     <module>app-books</module>
     <module>app-web-vaadin</module>
   </modules>
