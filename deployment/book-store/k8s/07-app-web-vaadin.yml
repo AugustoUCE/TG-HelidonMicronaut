@@ -27,7 +27,7 @@ spec:
       containers:
         - name: app-web-vaadin
           image: jjarteaga/app-web-vaadin-tg:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
               name: http
