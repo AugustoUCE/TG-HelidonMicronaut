@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Store</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 900px;
+        }
+        
+        /* PANTALLA DE INICIO */
+        .home-screen {
+            background: white;
+            border-radius: 15px;
+            padding: 60px 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        .home-screen h1 {
+            font-size: 3.5em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .home-screen p {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            margin-left: 10px;
+        }
+        
+        .btn-secondary:hover {
+            background: #f5f5f5;
+        }
+        
+        .btn-back {
+            background: #ccc;
+            color: #333;
+            padding: 10px 20px;
+            font-size: 0.95em;
+        }
+        
+        .btn-back:hover {
+            background: #999;
+            color: white;
+        }
+        
+        /* PANTALLA DE LIBROS */
+        .books-screen {
+            display: none;
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        .books-screen.show {
+            display: block;
+        }
+        
+        .books-header {
+            background: white;
+            border-radius: 15px 15px 0 0;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .books-header h2 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        
+        .books-content {
+            background: white;
+            border-radius: 0 0 15px 15px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .books-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .book-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            border-left: 5px solid #667eea;
+        }
+        
+        .book-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .book-info {
+            flex: 1;
+            text-align: left;
+        }
+        
+        .book-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .book-isbn {
+            color: #666;
+            font-size: 0.95em;
+            margin-bottom: 5px;
+        }
+        
+        .book-price {
+            color: #667eea;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        
+        .btn-view-authors {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-view-authors:hover {
+            background: #764ba2;
+            transform: scale(1.05);
+        }
+        
+        /* MODAL DE AUTORES */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.show {
+            display: flex;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 15px;
+        }
+        
+        .modal-header h3 {
+            color: #333;
+            font-size: 1.5em;
+            flex: 1;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .close-btn:hover {
+            color: #333;
+        }
+        
+        .authors-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .author-item {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #764ba2;
+        }
+        
+        .author-name {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.1em;
+        }
+        
+        .loading, .error {
+            text-align: center;
+            padding: 30px;
+            font-size: 1.1em;
+        }
+        
+        .loading {
+            color: #667eea;
+        }
+        
+        .error {
+            color: #d32f2f;
+            background: #ffebee;
+            border-radius: 8px;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .home-screen {
+                padding: 40px 20px;
+            }
+            
+            .home-screen h1 {
+                font-size: 2.5em;
+            }
+            
+            .btn {
+                padding: 12px 30px;
+                font-size: 1em;
+            }
+            
+            .btn-secondary {
+                margin-left: 0;
+                display: block;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- PANTALLA DE INICIO -->
+    <div id="homeScreen" class="home-screen">
+        <h1>📚 BookStore</h1>
+        <p>Explora nuestro catálogo de libros<br>Descubre los autores detrás de cada obra</p>
+        <button class="btn btn-primary" onclick="goToBooks()">📖 Ver Libros</button>
+    </div>
+    
+    <!-- PANTALLA DE LIBROS -->
+    <div id="booksScreen" class="books-screen">
+        <div class="books-header">
+            <button class="btn btn-back" onclick="backToHome()">← Volver</button>
+            <h2>📚 Catálogo de Libros</h2>
+        </div>
+        <div class="books-content">
+            <div id="booksList" class="loading">Cargando libros...</div>
+        </div>
+    </div>
+    
+    <!-- MODAL DE AUTORES -->
+    <div id="authorsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>👥 Autores</h3>
+                <button class="close-btn" onclick="closeAuthorsModal()">✕</button>
+            </div>
+            <div id="authorsList" class="loading">Cargando autores...</div>
+        </div>
+    </div>
+
+    <script>
+        // Configurar URLs según el entorno
+        let API_URL_BOOKS, API_URL_AUTHORS;
+        
+        // USAR PROXY DEL BACKEND para evitar CORS
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            // En desarrollo: proxy a través del servidor local
+            API_URL_BOOKS = 'http://localhost:8888/proxy/books';
+            API_URL_AUTHORS = 'http://localhost:8888/proxy/authors';
+        } else {
+            // En Docker: proxy a través del servidor web
+            API_URL_BOOKS = 'http://localhost:8888/proxy/books';
+            API_URL_AUTHORS = 'http://localhost:8888/proxy/authors';
+        }
+
+        console.log('🌍 Entorno:', window.location.hostname);
+        console.log('📖 API Libros (Proxy):', API_URL_BOOKS);
+        console.log('👥 API Autores (Proxy):', API_URL_AUTHORS);
+
+        // Navegar a pantalla de libros
+        function goToBooks() {
+            document.getElementById('homeScreen').classList.remove('show');
+            document.getElementById('booksScreen').classList.add('show');
+            loadBooks();
+        }
+
+        // Volver a inicio
+        function backToHome() {
+            document.getElementById('booksScreen').classList.remove('show');
+            document.getElementById('homeScreen').classList.add('show');
+        }
+
+        // Cargar lista de libros
+        function loadBooks() {
+            fetch(API_URL_BOOKS)
+                .then(r => r.json())
+                .then(books => {
+                    if (books && Array.isArray(books) && books.length > 0) {
+                        const html = books
+                            .map(book => `
+                                <div class="book-card">
+                                    <div class="book-info">
+                                        <div class="book-title">${book.title}</div>
+                                        <div class="book-isbn">ISBN: ${book.isbn}</div>
+                                        <div class="book-price">💲 $${book.price.toFixed(2)}</div>
+                                    </div>
+                                    <button class="btn-view-authors" onclick="showAuthorsForBook('${book.isbn}')">
+                                        Ver Autores
+                                    </button>
+                                </div>
+                            `)
+                            .join('');
+                        document.getElementById('booksList').innerHTML = html;
+                    } else {
+                        document.getElementById('booksList').innerHTML = '<p class="error">No hay libros disponibles</p>';
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    document.getElementById('booksList').innerHTML = '<p class="error">❌ Error al cargar libros</p>';
+                });
+        }
+
+        // Mostrar autores de un libro
+        function showAuthorsForBook(isbn) {
+            document.getElementById('authorsModal').classList.add('show');
+            document.getElementById('authorsList').innerHTML = '<div class="loading">Cargando autores...</div>';
+            
+            fetch(API_URL_AUTHORS + '/isbn/' + isbn)
+                .then(r => r.json())
+                .then(authors => {
+                    if (authors && Array.isArray(authors) && authors.length > 0) {
+                        const html = authors
+                            .map(author => `
+                                <div class="author-item">
+                                    <div class="author-name">✍️ ${author.name}</div>
+                                </div>
+                            `)
+                            .join('');
+                        document.getElementById('authorsList').innerHTML = html;
+                    } else {
+                        document.getElementById('authorsList').innerHTML = '<p class="error">Sin autores registrados</p>';
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    document.getElementById('authorsList').innerHTML = '<p class="error">❌ Error al cargar autores</p>';
+                });
+        }
+
+        // Cerrar modal de autores
+        function closeAuthorsModal() {
+            document.getElementById('authorsModal').classList.remove('show');
+        }
+
+        // Cerrar modal al hacer click fuera
+        document.getElementById('authorsModal').addEventListener('click', (e) => {
+            if (e.target.id === 'authorsModal') {
+                closeAuthorsModal();
+            }
+        });
+
+        // Mostrar home al cargar
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('homeScreen').classList.add('show');
+        });
+    </script>
+</body>
+</html>

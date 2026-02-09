@@ -105,7 +105,7 @@ services:
   # APP-AUTHORS - Helidon MP 4.3.3
   # ==========================================
   app-authors:
-    image: augustouce/app-authors-tg:latest
+    image: jjarteaga/app-authors-tg:latest
     container_name: app-authors
     hostname: app-authors
     restart: unless-stopped
@@ -144,7 +144,7 @@ services:
   # APP-BOOKS - Helidon MP 4.3.3
   # ==========================================
   app-books:
-    image: augustouce/app-books-tg:latest
+    image: jjarteaga/app-books-tg:latest
     container_name: app-books
     hostname: app-books
     restart: unless-stopped
@@ -178,6 +178,31 @@ services:
       - microservices-net
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8030/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+  # ==========================================
+  # APP-WEB-VAADIN - Vaadin 
+  # ==========================================
+  app-web-vaadin:
+    image: jjarteaga/app-web-vaadin-tg:latest
+    container_name: app-web-vaadin
+    hostname: app-web-vaadin
+    restart: unless-stopped
+    environment:
+      API_BASE_URL: http://app-books:8030/books
+
+      JAVA_OPTS: -Xms256m -Xmx512m
+    ports:
+      - "8888:8080"
+    depends_on:
+      app-books:
+        condition: service_healthy
+    networks:
+      - microservices-net
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080"]
       interval: 30s
       timeout: 10s
       retries: 3

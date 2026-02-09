@@ -23,34 +23,10 @@ public class FlywayMigration {
     String dbPassword;
 
     public void onStartup(@Observes @Initialized(ApplicationScoped.class) Object event) {
+        // app-books NO ejecuta migraciones porque la BD es compartida con app-authors
+        // app-authors es responsable de ejecutar todas las migraciones (V1.0.1, V1.0.2, V1.0.3, V1.0.4)
         System.out.println("========================================");
-        System.out.println("Iniciando migraciones Flyway...");
-        System.out.println("DB URL: " + dbUrl);
+        System.out.println("app-books: Flyway desactivado - BD compartida con app-authors");
         System.out.println("========================================");
-
-        try {
-            Flyway flyway = Flyway.configure()
-                    .dataSource(dbUrl, dbUser, dbPassword)
-                    .locations("classpath:db/migration")
-                    .baselineOnMigrate(true)
-                    .cleanDisabled(false)
-                    .load();
-
-
-            // flyway.clean();
-
-            int migrationsExecuted = flyway.migrate().migrationsExecuted;
-
-            System.out.println("Migraciones ejecutadas: " + migrationsExecuted);
-            System.out.println("========================================");
-
-        } catch (Exception e) {
-            System.err.println("========================================");
-            System.err.println("ERROR");
-            System.err.println("   Mensaje: " + e.getMessage());
-            System.err.println("========================================");
-            e.printStackTrace();
-            throw new RuntimeException("Fallo en migraciones flyway en DB", e);
-        }
     }
 }
