@@ -1,0 +1,75 @@
+micronaut:
+  application:
+    name: app-recommend
+  server:
+    port: 8010
+    context-path: /app-recommend
+    cors:
+      enabled: true
+
+  # HTTP Client configuration
+  http:
+    client:
+      read-timeout: 30s
+
+# Datasource configuration
+datasources:
+  default:
+    url: jdbc:postgresql://localhost:5432/postgres
+    driverClassName: org.postgresql.Driver
+    username: postgres
+    password: postgres
+    dialect: POSTGRES
+    schema-generate: NONE
+
+# JPA Configuration
+jpa:
+  default:
+    entity-scan:
+      packages:
+        - 'uce.edu.ec.db'
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: update
+        show_sql: true
+        format_sql: true
+
+# Consul Service Discovery
+consul:
+  client:
+    registration:
+      enabled: true
+      prefer-ip-address: true
+      health-path: /health
+      check:
+        interval: 10s
+        http: true
+    defaultZone: "${CONSUL_HOST:localhost}:${CONSUL_PORT:8500}"
+    service-id: ${micronaut.application.name}
+    tags:
+      - "traefik.enable=true"
+      - "traefik.http.routers.recommend.rule=PathPrefix(`/app-recommend`)"
+      - "traefik.http.middlewares.recommend-stripprefix.stripPrefix.prefixes=/app-recommend"
+      - "traefik.http.routers.recommend.middlewares=recommend-stripprefix"
+
+# Ollama Local AI Configuration (No API Key needed!)
+ollama:
+  url: http://localhost:11434
+  model: llama2:latest
+  
+# Health & Monitoring
+endpoints:
+  health:
+    enabled: true
+    sensitive: false
+  info:
+    enabled: true
+    sensitive: false
+
+# Logging
+logger:
+  levels:
+    uce.edu.ec: DEBUG
+    io.micronaut.data: DEBUG
+    org.hibernate.SQL: DEBUG
