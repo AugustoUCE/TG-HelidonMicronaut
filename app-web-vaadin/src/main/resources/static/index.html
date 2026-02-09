@@ -34,6 +34,8 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             text-align: center;
             animation: slideIn 0.5s ease-out;
+            margin: 0 auto;
+
         }
         
         .home-screen h1 {
@@ -97,10 +99,13 @@
         .books-screen {
             display: none;
             animation: slideIn 0.5s ease-out;
+            margin: 0 auto;
+
         }
-        
+
         .books-screen.show {
             display: block;
+
         }
         
         .books-header {
@@ -108,6 +113,7 @@
             border-radius: 15px 15px 0 0;
             padding: 30px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+
         }
         
         .books-header h2 {
@@ -393,7 +399,7 @@
             document.getElementById('homeScreen').classList.add('show');
         }
 
-        // Cargar lista de libros
+        // Cargar lista
         function loadBooks() {
             fetch(API_URL_BOOKS)
                 .then(r => r.json())
@@ -424,7 +430,7 @@
                 });
         }
 
-        // Mostrar autores de un libro
+        //  autores de un libro
         function showAuthorsForBook(isbn) {
             document.getElementById('authorsModal').classList.add('show');
             document.getElementById('authorsList').innerHTML = '<div class="loading">Cargando autores...</div>';
@@ -451,19 +457,19 @@
                 });
         }
 
-        // Cerrar modal de autores
+
         function closeAuthorsModal() {
             document.getElementById('authorsModal').classList.remove('show');
         }
 
-        // Cerrar modal al hacer click fuera
+
         document.getElementById('authorsModal').addEventListener('click', (e) => {
             if (e.target.id === 'authorsModal') {
                 closeAuthorsModal();
             }
         });
 
-        // Mostrar home al cargar
+        // Mostrar home
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('homeScreen').classList.add('show');
         });

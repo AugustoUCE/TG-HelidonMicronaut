@@ -20,7 +20,6 @@ public class BookService {
     private final Gson gson;
 
     public BookService() {
-        // Obtener URL base de variable de entorno o usar default
         this.apiBaseUrl = System.getenv("API_BASE_URL") != null ? 
             System.getenv("API_BASE_URL") : "http://localhost:8030/books";
         this.httpClient = HttpClient.newHttpClient();
@@ -61,7 +60,7 @@ public class BookService {
     }
 
     /**
-     * Obtiene un libro específico por ISBN
+     * libro específico por ISBN
      */
     public Book getBookByIsbn(String isbn) {
         try {

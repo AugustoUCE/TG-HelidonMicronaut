@@ -9,7 +9,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Servir archivos estáticos desde src/main/resources/static
+        // Servir archivos estáticos
         registry
             .addResourceHandler("/**")
             .addResourceLocations("classpath:/static/")

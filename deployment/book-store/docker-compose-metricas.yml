@@ -1,7 +1,7 @@
 services:
-  # ==========================================
-  # POSTGRESQL - Base de datos compartida
-  # ==========================================
+
+  # POSTGRESQL
+
   postgres:
     image: postgres:17.7-alpine3.23
     container_name: postgres
@@ -37,9 +37,8 @@ services:
     networks:
       - microservices-net
 
-  # ==========================================
-  # CONSUL - Service Discovery
-  # ==========================================
+
+  # CONSUL
   consul:
     image: consul:1.15.4
     container_name: consul
@@ -65,9 +64,8 @@ services:
       timeout: 3s
       retries: 3
 
-  # ==========================================
-  # TRAEFIK - API Gateway
-  # ==========================================
+
+  # TRAEFIK
   traefik:
     image: traefik:3.6.6
     container_name: traefik
@@ -101,11 +99,10 @@ services:
     labels:
       - "traefik.enable=true"
 
-  # ==========================================
-  # APP-AUTHORS - Helidon MP 4.3.3
-  # ==========================================
+
+  # APP-AUTHORS
   app-authors:
-    image: jjarteaga/app-authors-tg:latest
+    image: augustouce/app-authors-tg:latest
     container_name: app-authors
     hostname: app-authors
     restart: unless-stopped
@@ -140,11 +137,10 @@ services:
       retries: 3
       start_period: 40s
 
-  # ==========================================
-  # APP-BOOKS - Helidon MP 4.3.3
-  # ==========================================
+
+  # APP-BOOKS
   app-books:
-    image: jjarteaga/app-books-tg:latest
+    image: augustouce/app-books-tg:latest
     container_name: app-books
     hostname: app-books
     restart: unless-stopped
@@ -182,9 +178,8 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-  # ==========================================
-  # APP-WEB-VAADIN - Vaadin 
-  # ==========================================
+
+  # APP-WEB-VAADIN
   app-web-vaadin:
     image: jjarteaga/app-web-vaadin-tg:latest
     container_name: app-web-vaadin
@@ -207,9 +202,8 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-# ==========================================
+
 # PROMETHEUS
-# ==========================================
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
@@ -222,9 +216,8 @@ services:
       - microservices-net
     depends_on:
       - postgres-exporter
-# ==========================================
+
 # GRAFANA
-# ==========================================
   grafana:
     image: grafana/grafana-oss:latest
     container_name: grafana
@@ -236,17 +229,15 @@ services:
     networks:
       - microservices-net
 
-# ==========================================
+
 # NETWORKS
-# ==========================================
 networks:
   microservices-net:
     driver: bridge
     name: microservices-network
 
-# ==========================================
+
 # VOLUMES
-# ==========================================
 volumes:
   postgres-data:
     name: postgres-data
