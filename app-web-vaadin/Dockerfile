@@ -23,7 +23,7 @@ FROM eclipse-temurin:21.0.9_10-jre-alpine-3.23
 WORKDIR /app
 
 # Copy built JAR from build stage
-COPY --from=build /build/target/app-web-vaadin-*.jar app-web-vaadin.jar  
+COPY --from=build /build/target/app-web-vaadin-*.jar app-web-vaadin-1.0-SNAPSHOT.jar
 
 EXPOSE 8080
 
@@ -34,4 +34,4 @@ ENV API_BASE_URL=http://app-books:8030/books
 HEALTHCHECK --interval=10s --timeout=3s --start-period=40s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:8080 || exit 1
 
-CMD ["java", "-jar", "app-web-vaadin.jar"]
+CMD ["java", "-jar", "app-web-vaadin-1.0-SNAPSHOT.jar"]

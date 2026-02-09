@@ -368,9 +368,9 @@
     </div>
 
     <script>
-        // Configurar URLs según el entorno
+        /*Configurar URLs según el entorno
         let API_URL_BOOKS, API_URL_AUTHORS;
-        
+
         // USAR PROXY DEL BACKEND para evitar CORS
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
             // En desarrollo: proxy a través del servidor local
@@ -380,11 +380,13 @@
             // En Docker: proxy a través del servidor web
             API_URL_BOOKS = 'http://localhost:8888/proxy/books';
             API_URL_AUTHORS = 'http://localhost:8888/proxy/authors';
-        }
+        }*/
+        const API_URL_BOOKS = '/proxy/books';
+        const API_URL_AUTHORS = '/proxy/authors';
 
-        console.log('🌍 Entorno:', window.location.hostname);
-        console.log('📖 API Libros (Proxy):', API_URL_BOOKS);
-        console.log('👥 API Autores (Proxy):', API_URL_AUTHORS);
+        console.log(' Entorno:', window.location.hostname);
+        console.log('API Libros (Proxy):', API_URL_BOOKS);
+        console.log('API Autores (Proxy):', API_URL_AUTHORS);
 
         // Navegar a pantalla de libros
         function goToBooks() {
@@ -411,7 +413,7 @@
                                     <div class="book-info">
                                         <div class="book-title">${book.title}</div>
                                         <div class="book-isbn">ISBN: ${book.isbn}</div>
-                                        <div class="book-price">💲 $${book.price.toFixed(2)}</div>
+                                        <div class="book-price"> $${book.price.toFixed(2)}</div>
                                     </div>
                                     <button class="btn-view-authors" onclick="showAuthorsForBook('${book.isbn}')">
                                         Ver Autores
@@ -426,7 +428,7 @@
                 })
                 .catch(err => {
                     console.error('Error:', err);
-                    document.getElementById('booksList').innerHTML = '<p class="error">❌ Error al cargar libros</p>';
+                    document.getElementById('booksList').innerHTML = '<p class="error"> Error al cargar libros</p>';
                 });
         }
 
@@ -442,7 +444,7 @@
                         const html = authors
                             .map(author => `
                                 <div class="author-item">
-                                    <div class="author-name">✍️ ${author.name}</div>
+                                    <div class="author-name">✍ ${author.name}</div>
                                 </div>
                             `)
                             .join('');
@@ -453,7 +455,7 @@
                 })
                 .catch(err => {
                     console.error('Error:', err);
-                    document.getElementById('authorsList').innerHTML = '<p class="error">❌ Error al cargar autores</p>';
+                    document.getElementById('authorsList').innerHTML = '<p class="error"> Error al cargar autores</p>';
                 });
         }
 
