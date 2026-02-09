@@ -32,16 +32,16 @@ public class BookRest {
     @GET
     @Path("/{isbn}")
     public Response findByIsbn(@PathParam("isbn") String isbn) {
-        System.out.println("📚 Buscando libro con ISBN: " + isbn);
+        System.out.println("Buscando libro con ISBN: " + isbn);
 
         Book book = bookRepository.findByIsbn(isbn);  // ← CAMBIADO
 
         if (book == null) {
-            System.err.println("❌ Libro no encontrado: " + isbn);
+            System.err.println("Libro no encontrado: " + isbn);
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        System.out.println("✅ Libro encontrado: " + book.getTitle());
+        System.out.println("OK Libro encontrado: " + book.getTitle());
         var authors = authorRestClient.findByBook(isbn);
 
         BookDto dto = new BookDto();
@@ -54,10 +54,10 @@ public class BookRest {
     @GET
     @Path("/all")
     public List<BookDto> findAll() {
-        System.out.println("📚 Obteniendo todos los libros...");
+        System.out.println(" Obteniendo todos los libros...");
 
-        List<Book> books = bookRepository.findAll();  // ← CAMBIADO
-        System.out.println("✅ Total de libros: " + books.size());
+        List<Book> books = bookRepository.findAll();
+        System.out.println("Total de libros: " + books.size());
 
         return books.stream()
                 .map(book -> {
@@ -69,9 +69,9 @@ public class BookRest {
                     try {
                         var authors = authorRestClient.findByBook(book.getIsbn());
                         dto.setAuthors(authors);
-                        System.out.println("    ✅ Autores: " + authors.size());
+                        System.out.println(" Autores: " + authors.size());
                     } catch (Exception e) {
-                        System.err.println("    ⚠️ Error: " + e.getMessage());
+                        System.err.println(" Error: " + e.getMessage());
                         dto.setAuthors(List.of());
                     }
 
@@ -83,6 +83,6 @@ public class BookRest {
     @GET
     @Path("/test")
     public String test() {
-        return "test app-books helidon funciona ✅";
+        return "test app-books helidon funciona";
     }
 }

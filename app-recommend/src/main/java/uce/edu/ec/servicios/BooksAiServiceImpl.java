@@ -17,11 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Implementación del servicio de recomendaciones usando Ollama (IA Local)
- * Modelo: Meta-Llama-3.1-8B-Instruct
- * 
- * Ollama debe estar corriendo en http://localhost:11434
- * Modelo debe estar instalado: ollama pull llama3.1:8b
+ * Ollama  http://localhost:11434
  */
 @Singleton
 public class BooksAiServiceImpl implements BooksAiService {
@@ -41,7 +37,7 @@ public class BooksAiServiceImpl implements BooksAiService {
 
     @Override
     public List<BookRecDto> recommend(String title) {
-        LOG.info("🤖 Solicitando recomendaciones a Llama 3.1 local para: {}", title);
+        LOG.info("Solicitando recomendaciones a Llama 3.1 local para: {}", title);
         
         String promptText = String.format(
                 """
@@ -68,7 +64,6 @@ public class BooksAiServiceImpl implements BooksAiService {
         );
 
         try {
-            // Construir request para Ollama API
             Map<String, Object> requestBody = Map.of(
                     "model", MODEL_NAME,
                     "prompt", promptText,
@@ -80,44 +75,38 @@ public class BooksAiServiceImpl implements BooksAiService {
                     )
             );
 
-            LOG.debug("📤 Enviando request a Ollama con modelo: {}", MODEL_NAME);
+            LOG.debug("Enviando request a Ollama con modelo: {}", MODEL_NAME);
 
-            // Llamada a Ollama
             HttpRequest<?> request = HttpRequest.POST("/api/generate", requestBody)
                     .header("Content-Type", "application/json");
 
             String response = httpClient.toBlocking().retrieve(request);
 
-            LOG.debug("📥 Respuesta recibida de Ollama");
+            LOG.debug(" Respuesta recibida de Ollama");
 
-            // Parsear respuesta de Ollama
             JsonNode jsonResponse = objectMapper.readTree(response);
             String content = jsonResponse.path("response").asText();
 
-            // Limpiar el contenido
             content = cleanJsonResponse(content);
 
-            LOG.debug("✨ Contenido limpiado: {}", content);
+            LOG.debug(" Contenido limpiado: {}", content);
 
-            // Convertir a lista de BookRecDto
             List<BookRecDto> recommendations = objectMapper.readValue(
                     content,
                     new TypeReference<List<BookRecDto>>() {}
             );
 
-            LOG.info("✅ Se obtuvieron {} recomendaciones exitosamente", recommendations.size());
+            LOG.info(" Se obtuvieron {} recomendaciones exitosamente", recommendations.size());
             return recommendations;
 
         } catch (Exception e) {
-            LOG.error("❌ Error llamando a Ollama: {}", e.getMessage(), e);
-            LOG.warn("⚠️  Retornando recomendaciones por defecto");
+            LOG.error(" Error llamando a Ollama: {}", e.getMessage(), e);
+            LOG.warn("  Retornando recomendaciones por defecto");
             return getDefaultRecommendations(title);
         }
     }
 
-    /**
-     * Limpia la respuesta JSON removiendo markdown, espacios extra, etc.
-     */
+
     private String cleanJsonResponse(String content) {
         return content.trim()
                 .replaceAll("```json\\s*", "")
@@ -127,11 +116,9 @@ public class BooksAiServiceImpl implements BooksAiService {
                 .trim();
     }
 
-    /**
-     * Recomendaciones por defecto en caso de error con Ollama
-     */
+
     private List<BookRecDto> getDefaultRecommendations(String title) {
-        LOG.info("📚 Generando recomendaciones por defecto para: {}", title);
+        LOG.info("Generando recomendaciones por defecto para: {}", title);
         List<BookRecDto> defaults = new ArrayList<>();
 
         defaults.add(BookRecDto.builder()

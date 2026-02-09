@@ -38,10 +38,8 @@ public class BookLifecycle {
     private String serviceId;
     private ConsulClient consulClient;
 
-    // ---------- STARTUP ----------
     public void onStartup(@Observes @Initialized(ApplicationScoped.class) Object event) {
-        System.out.println("========================================");
-        System.out.println("***** BookLifecycle - INICIANDO *****");
+
         System.out.println("Registrando servicio en Consul...");
         System.out.println("========================================");
 
@@ -82,13 +80,11 @@ public class BookLifecycle {
 
             consulClient.registerService(serviceOptions, ar -> {
                 if (ar.succeeded()) {
-                    System.out.println("========================================");
-                    System.out.println("Servicio app-books registrado en Consul");
+                    System.out.println("Consul");
                     System.out.println("Service ID: " + serviceId);
                     System.out.println("========================================");
                 } else {
-                    System.err.println("========================================");
-                    System.err.println(" ERROR registrando app-books en Consul");
+                    System.err.println(" ERROR ");
                     System.err.println("   Mensaje: " + ar.cause().getMessage());
                     System.err.println("========================================");
                     ar.cause().printStackTrace();
@@ -96,19 +92,12 @@ public class BookLifecycle {
             });
 
         } catch (Exception e) {
-            System.err.println("========================================");
-            System.err.println(" ERROR FATAL en BookLifecycle.onStartup()");
-            System.err.println("========================================");
+            System.err.println(" EXCEPCIÓN al iniciar BookLifecycle");
             e.printStackTrace();
         }
     }
 
-    // ---------- SHUTDOWN ----------
     public void onShutdown(@Observes @BeforeDestroyed(ApplicationScoped.class) Object event) {
-        System.out.println("========================================");
-        System.out.println("***** BookLifecycle - APAGANDO *****");
-        System.out.println("Desregistrando servicio...");
-        System.out.println("========================================");
 
         if (consulClient != null && serviceId != null) {
             consulClient.deregisterService(serviceId, ar -> {
@@ -116,7 +105,7 @@ public class BookLifecycle {
                     System.out.println(" Servicio app-books desregistrado de Consul");
                     System.out.println("========================================");
                 } else {
-                    System.err.println(" ERROR desregistrando app-books");
+                    System.err.println(" ERROR en registrando app-books");
                     System.err.println("   Mensaje: " + ar.cause().getMessage());
                     System.out.println("========================================");
                 }

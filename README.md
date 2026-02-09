@@ -1,4 +1,4 @@
-# Monitoreo - Helidon MP 4.3.3
+# TG-AS-JA-Helidon MP 4.3.3
 
 ##  URLs de los servicios
 - App Authors: http://192.168.100.5/app-authors
@@ -10,9 +10,8 @@
 ##  Grafana
 - ID Postgres (Datasource): 9628
 - Dashboard: Helidon MP 4.x - MicroProfile Metrics
-- UID: helidon-mp-basic
 
-##  Dashboard (JSON)
+##  Dashboard para Helidon app-auhtors | app-books (JSON)
 ```json
 {
   "uid": "helidon-mp-basic",
