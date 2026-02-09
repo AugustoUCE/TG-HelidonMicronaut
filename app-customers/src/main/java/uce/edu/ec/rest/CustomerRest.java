@@ -19,7 +19,6 @@ public class CustomerRest {
         this.customersRepo = customersRepo;
     }
 
-    // ----------------- GET ALL CUSTOMERS -----------------
     @Get(produces = MediaType.APPLICATION_JSON)
     public HttpResponse<List<CustomerDto>> getAllCustomers() {
         List<CustomerDto> customers = customersRepo.findAll()
@@ -29,7 +28,6 @@ public class CustomerRest {
         return HttpResponse.ok(customers);
     }
 
-    // ----------------- SEARCH BY FIRST NAME -----------------
     @Get(value = "/search", produces = MediaType.APPLICATION_JSON)
     public HttpResponse<List<CustomerDto>> searchByFirstName(@QueryValue("firstName") String firstName) {
         List<CustomerDto> customers = customersRepo.findByFirstName(firstName)
@@ -39,7 +37,6 @@ public class CustomerRest {
         return HttpResponse.ok(customers);
     }
 
-    // ----------------- HELPER METHOD -----------------
     private CustomerDto mapToDto(Customer customer) {
         return CustomerDto.builder()
                 .id(customer.getId())

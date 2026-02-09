@@ -9,11 +9,14 @@ import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.QueryValue;
+import io.micronaut.scheduling.TaskExecutors;
+import io.micronaut.scheduling.annotation.ExecuteOn;
 import jakarta.inject.Inject;
 import uce.edu.ec.dto.BookRecDto;
 import uce.edu.ec.servicios.BooksAiService;
 
 @Controller("/recommend")
+@ExecuteOn(TaskExecutors.BLOCKING)
 public class BooksRecommendRest {
 
     private static final Logger LOG = LoggerFactory.getLogger(BooksRecommendRest.class);

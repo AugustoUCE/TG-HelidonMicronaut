@@ -73,7 +73,6 @@ public class PurcharseOrderRestController {
             return HttpResponse.notFound();
         }
         
-        // Actualizar los campos
         PurcharseOrder toUpdate = existingOrder.get();
         toUpdate.setPlacedOn(order.getPlacedOn());
         toUpdate.setDeliveredOn(order.getDeliveredOn());

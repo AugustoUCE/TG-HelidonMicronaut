@@ -21,8 +21,6 @@ public class Book {
 
     private Double price;
 
-    // Relación uno a uno inversa (no propietaria)
-    //@OneToOne(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OneToOne(mappedBy = "book")
     private Inventory inventory;
 

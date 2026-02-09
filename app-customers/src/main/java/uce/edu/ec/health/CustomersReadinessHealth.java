@@ -10,13 +10,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Map;
 
-/**
- * Custom readiness health check
- * Endpoints disponibles:
- * - /health
- * - /health/liveness
- * - /health/readiness
- */
+
 @Singleton
 @Requires(property = "endpoints.health.enabled", notEquals = "false")
 public class CustomersReadinessHealth implements HealthIndicator {
