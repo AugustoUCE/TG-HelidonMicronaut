@@ -2,7 +2,6 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: prometheus-config
-  namespace: book-store
 data:
   prometheus.yml: |
     global:
@@ -26,7 +25,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: prometheus
-  namespace: book-store
   labels:
     app: prometheus
 spec:
@@ -40,8 +38,7 @@ spec:
         app: prometheus
     spec:
       securityContext:
-        runAsNonRoot: true
-        fsGroup: 65534
+        fsGroupChangePolicy: OnRootMismatch
       containers:
       - name: prometheus
         image: prom/prometheus:latest
@@ -57,25 +54,6 @@ spec:
           requests:
             memory: "256Mi"
             cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-        livenessProbe:
-          httpGet:
-            path: /-/healthy
-            port: 9090
-          initialDelaySeconds: 30
-          periodSeconds: 15
-          timeoutSeconds: 5
-          failureThreshold: 3
-        readinessProbe:
-          httpGet:
-            path: /-/ready
-            port: 9090
-          initialDelaySeconds: 10
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
         volumeMounts:
         - name: prometheus-config
           mountPath: /etc/prometheus
@@ -92,7 +70,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: prometheus
-  namespace: book-store
   labels:
     app: prometheus
 spec:
@@ -109,7 +86,6 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: prometheus
-  namespace: book-store
   labels:
     app: prometheus
 spec:

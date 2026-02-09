@@ -2,7 +2,6 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: grafana-config
-  namespace: book-store
 data:
   GF_SECURITY_ADMIN_PASSWORD: admin
   GF_SECURITY_ADMIN_USER: admin
@@ -12,7 +11,6 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: grafana-datasources
-  namespace: book-store
 data:
   prometheus.yaml: |
     apiVersion: 1
@@ -27,7 +25,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: grafana
-  namespace: book-store
   labels:
     app: grafana
 spec:
@@ -41,8 +38,7 @@ spec:
         app: grafana
     spec:
       securityContext:
-        runAsNonRoot: true
-        fsGroup: 472
+        fsGroupChangePolicy: OnRootMismatch
       containers:
       - name: grafana
         image: grafana/grafana-oss:latest
@@ -71,25 +67,6 @@ spec:
           requests:
             memory: "128Mi"
             cpu: "100m"
-          limits:
-            memory: "256Mi"
-            cpu: "200m"
-        livenessProbe:
-          httpGet:
-            path: /api/health
-            port: 3000
-          initialDelaySeconds: 30
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
-        readinessProbe:
-          httpGet:
-            path: /api/health
-            port: 3000
-          initialDelaySeconds: 10
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
         volumeMounts:
         - name: grafana-datasources
           mountPath: /etc/grafana/provisioning/datasources
@@ -106,7 +83,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: grafana
-  namespace: book-store
   labels:
     app: grafana
 spec:
@@ -123,7 +99,6 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: grafana
-  namespace: book-store
   labels:
     app: grafana
 spec:

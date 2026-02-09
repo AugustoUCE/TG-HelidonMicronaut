@@ -2,19 +2,21 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: traefik-config
-  namespace: book-store
+  namespace: jhonartc25-dev
 data:
   traefik.yaml: |
     api:
       insecure: true
       dashboard: true
-    providers:
-      consulCatalog:
-        exposedByDefault: false
-        refreshInterval: 10s
     entryPoints:
       web:
-        address: :80
+        address: :8000
+      api:
+        address: :8090
+    providers:
+      file:
+        filename: /etc/traefik/routes.yaml
+        watch: true
     metrics:
       prometheus:
         addEntryPointsLabels: true
@@ -22,12 +24,74 @@ data:
     log:
       level: INFO
     accessLog: {}
+  routes.yaml: |
+    http:
+      services:
+        app-authors:
+          loadBalancer:
+            servers:
+              - url: http://app-authors:8080
+        app-books:
+          loadBalancer:
+            servers:
+              - url: http://app-books:8030
+        app-web-vaadin:
+          loadBalancer:
+            servers:
+              - url: http://app-web-vaadin:8080
+        consul:
+          loadBalancer:
+            servers:
+              - url: http://consul:8500
+        prometheus:
+          loadBalancer:
+            servers:
+              - url: http://prometheus:9090
+        grafana:
+          loadBalancer:
+            servers:
+              - url: http://grafana:3000
+      routers:
+        traefik-dashboard:
+          rule: Path(`/dashboard`) || Path(`/dashboard/`) || PathPrefix(`/api/`)
+          service: api@internal
+          entryPoints:
+            - api
+        app-authors:
+          rule: Host(`app-authors.apps.openshift.example.com`)
+          service: app-authors
+          entryPoints:
+            - web
+        app-books:
+          rule: Host(`app-books.apps.openshift.example.com`)
+          service: app-books
+          entryPoints:
+            - web
+        app-web-vaadin:
+          rule: Host(`vaadin.apps.openshift.example.com`)
+          service: app-web-vaadin
+          entryPoints:
+            - web
+        consul:
+          rule: Host(`consul.apps.openshift.example.com`)
+          service: consul
+          entryPoints:
+            - web
+        prometheus:
+          rule: Host(`prometheus.apps.openshift.example.com`)
+          service: prometheus
+          entryPoints:
+            - web
+        grafana:
+          rule: Host(`grafana.apps.openshift.example.com`)
+          service: grafana
+          entryPoints:
+            - web
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: traefik
-  namespace: book-store
   labels:
     app: traefik
 spec:
@@ -40,74 +104,49 @@ spec:
       labels:
         app: traefik
     spec:
-      securityContext:
-        runAsNonRoot: true
-        fsGroup: 65534
       containers:
       - name: traefik
         image: traefik:3.6.6
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 80
+        - containerPort: 8000
           name: web
           protocol: TCP
-        - containerPort: 8080
+        - containerPort: 8090
           name: dashboard
           protocol: TCP
         resources:
           requests:
             memory: "128Mi"
             cpu: "100m"
-          limits:
-            memory: "256Mi"
-            cpu: "200m"
-        livenessProbe:
-          httpGet:
-            path: /ping
-            port: 8080
-          initialDelaySeconds: 10
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
-        readinessProbe:
-          httpGet:
-            path: /ping
-            port: 8080
-          initialDelaySeconds: 10
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
+        volumeMounts:
+        - name: traefik-config
+          mountPath: /etc/traefik
+          readOnly: true
         args:
+        - --config.file=/etc/traefik/traefik.yaml
         - --api.insecure=true
         - --api.dashboard=true
-        - --providers.consulcatalog=true
-        - --providers.consulcatalog.endpoint.address=consul:8500
-        - --providers.consulcatalog.prefix=traefik
-        - --providers.consulcatalog.exposedByDefault=false
-        - --providers.consulcatalog.refreshInterval=10s
-        - --entrypoints.web.address=:80
-        - --metrics.prometheus=true
-        - --metrics.prometheus.addEntryPointsLabels=true
-        - --metrics.prometheus.addServicesLabels=true
-        - --log.level=INFO
-        - --accesslog=true
+      volumes:
+      - name: traefik-config
+        configMap:
+          name: traefik-config
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: traefik
-  namespace: book-store
   labels:
     app: traefik
 spec:
   type: ClusterIP
   ports:
-  - port: 80
-    targetPort: 80
+  - port: 8000
+    targetPort: 8000
     protocol: TCP
     name: web
-  - port: 8080
-    targetPort: 8080
+  - port: 8090
+    targetPort: 8090
     protocol: TCP
     name: dashboard
   selector:
@@ -117,7 +156,6 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: traefik-web
-  namespace: book-store
   labels:
     app: traefik
 spec:
@@ -133,7 +171,6 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: traefik-dashboard
-  namespace: book-store
   labels:
     app: traefik
 spec:

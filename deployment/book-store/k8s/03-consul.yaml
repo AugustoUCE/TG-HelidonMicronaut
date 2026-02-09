@@ -2,14 +2,11 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: consul-config
-  namespace: book-store
 data:
   consul-config.hcl: |
-    server = true
     ui_config {
       enabled = true
     }
-    bootstrap_expect = 1
     client_addr = "0.0.0.0"
     bind_addr = "0.0.0.0"
 ---
@@ -17,7 +14,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: consul
-  namespace: book-store
   labels:
     app: consul
 spec:
@@ -30,6 +26,8 @@ spec:
       labels:
         app: consul
     spec:
+      securityContext:
+        fsGroupChangePolicy: OnRootMismatch
       containers:
       - name: consul
         image: consul:1.15.4
@@ -48,35 +46,13 @@ spec:
           requests:
             memory: "256Mi"
             cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
         command:
         - consul
         - agent
-        - -server
+        - -dev
         - -ui
-        - -bootstrap-expect=1
         - -client=0.0.0.0
         - -bind=0.0.0.0
-        livenessProbe:
-          exec:
-            command:
-            - consul
-            - members
-          initialDelaySeconds: 30
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
-        readinessProbe:
-          exec:
-            command:
-            - consul
-            - members
-          initialDelaySeconds: 10
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
         volumeMounts:
         - name: consul-data
           mountPath: /consul/data
@@ -89,7 +65,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: consul
-  namespace: book-store
   labels:
     app: consul
 spec:
@@ -110,7 +85,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: consul-ui
-  namespace: book-store
   labels:
     app: consul
 spec:
@@ -127,7 +101,6 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: consul-ui
-  namespace: book-store
   labels:
     app: consul
 spec:
