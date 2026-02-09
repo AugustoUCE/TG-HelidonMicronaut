@@ -1,0 +1,146 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: traefik-config
+  namespace: book-store
+data:
+  traefik.yaml: |
+    api:
+      insecure: true
+      dashboard: true
+    providers:
+      consulCatalog:
+        exposedByDefault: false
+        refreshInterval: 10s
+    entryPoints:
+      web:
+        address: :80
+    metrics:
+      prometheus:
+        addEntryPointsLabels: true
+        addServicesLabels: true
+    log:
+      level: INFO
+    accessLog: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: traefik
+  namespace: book-store
+  labels:
+    app: traefik
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: traefik
+  template:
+    metadata:
+      labels:
+        app: traefik
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        fsGroup: 65534
+      containers:
+      - name: traefik
+        image: traefik:3.6.6
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+          name: web
+          protocol: TCP
+        - containerPort: 8080
+          name: dashboard
+          protocol: TCP
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /ping
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ping
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        args:
+        - --api.insecure=true
+        - --api.dashboard=true
+        - --providers.consulcatalog=true
+        - --providers.consulcatalog.endpoint.address=consul:8500
+        - --providers.consulcatalog.prefix=traefik
+        - --providers.consulcatalog.exposedByDefault=false
+        - --providers.consulcatalog.refreshInterval=10s
+        - --entrypoints.web.address=:80
+        - --metrics.prometheus=true
+        - --metrics.prometheus.addEntryPointsLabels=true
+        - --metrics.prometheus.addServicesLabels=true
+        - --log.level=INFO
+        - --accesslog=true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik
+  namespace: book-store
+  labels:
+    app: traefik
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    name: web
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: dashboard
+  selector:
+    app: traefik
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: traefik-web
+  namespace: book-store
+  labels:
+    app: traefik
+spec:
+  host: traefik.apps.openshift.example.com
+  to:
+    kind: Service
+    name: traefik
+    weight: 100
+  port:
+    targetPort: web
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: traefik-dashboard
+  namespace: book-store
+  labels:
+    app: traefik
+spec:
+  host: traefik-dashboard.apps.openshift.example.com
+  to:
+    kind: Service
+    name: traefik
+    weight: 100
+  port:
+    targetPort: dashboard
