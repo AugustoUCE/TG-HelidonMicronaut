@@ -14,10 +14,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-/**
- * REST Controller para gestión de Customers (Clientes)
- * Proporciona CRUD completo para la entidad Customer
- */
+
 @Controller("/customers")
 public class CustomersRestController {
 
@@ -30,10 +27,7 @@ public class CustomersRestController {
         this.customersRepo = customersRepo;
     }
 
-    /**
-     * Obtener todos los clientes
-     * GET /customers
-     */
+
     @Get(produces = MediaType.APPLICATION_JSON)
     public HttpResponse<List<Customer>> getAllCustomers() {
         LOG.info("Obteniendo todos los clientes");
@@ -43,10 +37,7 @@ public class CustomersRestController {
         return HttpResponse.ok(customers);
     }
 
-    /**
-     * Obtener un cliente por ID
-     * GET /customers/{id}
-     */
+
     @Get(value = "/{id}", produces = MediaType.APPLICATION_JSON)
     public HttpResponse<Customer> getCustomerById(@PathVariable Integer id) {
         LOG.info("Obteniendo cliente con ID: {}", id);
@@ -56,10 +47,7 @@ public class CustomersRestController {
                 .orElse(HttpResponse.notFound());
     }
 
-    /**
-     * Buscar cliente por email
-     * GET /customers/email/{email}
-     */
+
     @Get(value = "/email/{email}", produces = MediaType.APPLICATION_JSON)
     public HttpResponse<Customer> getCustomerByEmail(@PathVariable String email) {
         LOG.info("Buscando cliente con email: {}", email);
@@ -69,15 +57,11 @@ public class CustomersRestController {
                 .orElse(HttpResponse.notFound());
     }
 
-    /**
-     * Crear un nuevo cliente
-     * POST /customers
-     */
+
     @Post(consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
     public HttpResponse<Customer> createCustomer(@Body Customer customer) {
         LOG.info("Creando nuevo cliente: {}", customer.getEmail());
         
-        // Validar que el email no exista
         if (customer.getEmail() != null && customersRepo.findByEmail(customer.getEmail()).isPresent()) {
             return HttpResponse.badRequest();
         }
@@ -86,10 +70,7 @@ public class CustomersRestController {
         return HttpResponse.created(saved);
     }
 
-    /**
-     * Actualizar un cliente existente
-     * PUT /customers/{id}
-     */
+
     @Put(value = "/{id}", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
     public HttpResponse<Customer> updateCustomer(@PathVariable Integer id, @Body Customer customer) {
         LOG.info("Actualizando cliente con ID: {}", id);
@@ -99,7 +80,6 @@ public class CustomersRestController {
             return HttpResponse.notFound();
         }
         
-        // Actualizar los campos
         Customer toUpdate = existingCustomer.get();
         toUpdate.setFirst_name(customer.getFirst_name());
         toUpdate.setLast_Name(customer.getLast_Name());
@@ -109,10 +89,7 @@ public class CustomersRestController {
         return HttpResponse.ok(updated);
     }
 
-    /**
-     * Eliminar un cliente
-     * DELETE /customers/{id}
-     */
+
     @Delete(value = "/{id}")
     public HttpResponse<Void> deleteCustomer(@PathVariable Integer id) {
         LOG.info("Eliminando cliente con ID: {}", id);
@@ -126,10 +103,7 @@ public class CustomersRestController {
         return HttpResponse.noContent();
     }
 
-    /**
-     * Obtener cantidad total de clientes
-     * GET /customers/count
-     */
+
     @Get(value = "/count", produces = MediaType.APPLICATION_JSON)
     public HttpResponse<Long> countCustomers() {
         LOG.info("Contando clientes");

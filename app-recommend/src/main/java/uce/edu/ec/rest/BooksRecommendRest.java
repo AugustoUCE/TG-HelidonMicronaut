@@ -25,10 +25,7 @@ public class BooksRecommendRest {
         this.booksAiService = booksAiService;
     }
 
-    /**
-     * Endpoint para obtener recomendaciones de libros basadas en un título
-     * Ejemplo: GET /recommend?title=Cien años de soledad
-     */
+
     @Get(produces = MediaType.APPLICATION_JSON)
     public List<BookRecDto> findRecommend(@QueryValue String title) {
         LOG.info("Buscando recomendaciones para: {}", title);

@@ -9,10 +9,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import uce.edu.ec.servicios.BooksAiService;
 
-/**
- * Clase de ejemplo para probar el servicio de recomendaciones al iniciar la aplicación
- * Implementa ApplicationEventListener para ejecutar código al iniciar
- */
+
 @Singleton
 public class AppRecommendMain implements ApplicationEventListener<StartupEvent> {
 
@@ -28,13 +25,10 @@ public class AppRecommendMain implements ApplicationEventListener<StartupEvent> 
     @Override
     public void onApplicationEvent(StartupEvent event) {
         LOG.info("==================================================");
-        LOG.info("🚀 App Recommend iniciada correctamente");
-        LOG.info("🤖 Servicio de recomendaciones con Llama 3.1 Local");
-        LOG.info("📍 Ollama debe estar corriendo en: http://localhost:11434");
+        LOG.info("app-recommend iniciada");
+        LOG.info(" Ollama debe estar corriendo en: http://localhost:11434");
         LOG.info("==================================================");
         
-        // Descomentar para probar recomendaciones al iniciar
-        // var res = booksAiService.recommend("El Quijote");
-        // LOG.info("Recomendación de prueba: {}", res);
+
     }
 }
